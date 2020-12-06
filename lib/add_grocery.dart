@@ -1,28 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flow_builder/flow_builder.dart';
-import 'package:onboarding_flow_builder/main.dart';
-
-List<Page> onGenerateGroceryPages(Grocery grocery, List<Page> pages) {
-  return [
-    MaterialPage<void>(child: GroceryNameForm()),
-    if (grocery.name != null) MaterialPage<void>(child: GroceryAmountForm()),
-    if (grocery.amount != null) MaterialPage<void>(child: GroceryPriceForm()),
-  ];
-}
-
-class GroceryFlow extends StatelessWidget {
-  static Route<Grocery> route() {
-    return MaterialPageRoute(builder: (_) => GroceryFlow());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const FlowBuilder<Grocery>(
-      state: Grocery(),
-      onGeneratePages: onGenerateGroceryPages,
-    );
-  }
-}
 
 class GroceryNameForm extends StatefulWidget {
   @override
@@ -32,18 +8,14 @@ class GroceryNameForm extends StatefulWidget {
 class _GroceryNameFormState extends State<GroceryNameForm> {
   var _name = '';
 
-  void _continuePressed() {
-    context.flow<Grocery>().update((profile) => profile.copyWith(name: _name));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
-          onPressed: () => context
-              .flow<Grocery>()
-              .complete((profile) => profile.copyWith(name: _name)),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
         title: const Text('Name'),
       ),
@@ -61,7 +33,12 @@ class _GroceryNameFormState extends State<GroceryNameForm> {
               ),
               RaisedButton(
                 child: const Text('Continue'),
-                onPressed: _name.isNotEmpty ? _continuePressed : null,
+                onPressed: () {
+                  if (_name.isEmpty) return null;
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => GroceryAmountForm(),
+                  ));
+                },
               )
             ],
           ),
@@ -78,12 +55,6 @@ class GroceryAmountForm extends StatefulWidget {
 
 class _GroceryAmountFormState extends State<GroceryAmountForm> {
   int _amount;
-
-  void _continuePressed() {
-    context
-        .flow<Grocery>()
-        .update((profile) => profile.copyWith(amount: _amount));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +77,12 @@ class _GroceryAmountFormState extends State<GroceryAmountForm> {
               ),
               RaisedButton(
                 child: const Text('Continue'),
-                onPressed: _amount != null ? _continuePressed : null,
+                onPressed: () {
+                  if (_amount == null) return null;
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => GroceryPriceForm(),
+                  ));
+                },
               )
             ],
           ),
@@ -123,12 +99,6 @@ class GroceryPriceForm extends StatefulWidget {
 
 class _GroceryPriceFormState extends State<GroceryPriceForm> {
   int _price;
-
-  void _continuePressed() {
-    context
-        .flow<Grocery>()
-        .complete((profile) => profile.copyWith(price: _price));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +121,10 @@ class _GroceryPriceFormState extends State<GroceryPriceForm> {
               ),
               RaisedButton(
                 child: const Text('Continue'),
-                onPressed: _price != null ? _continuePressed : null,
+                onPressed: () {
+                  if (_price == null) return null;
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
               )
             ],
           ),

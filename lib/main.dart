@@ -50,10 +50,11 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () async {
-          final grocery = await Navigator.of(context).push(GroceryFlow.route());
-          setState(() {
-            groceryList.add(grocery);
-          });
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) {
+              return GroceryNameForm();
+            },
+          ));
         },
       ),
     );
